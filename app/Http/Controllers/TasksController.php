@@ -68,7 +68,17 @@ class TasksController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $validate = $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+
+        $task = Task::query()->find($id);
+
+        $task->name = $validate['name'];
+
+        $task->save();
+        
+        return redirect()->route('tasks.create');
     }
 
     /**
