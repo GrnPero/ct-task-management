@@ -1,15 +1,56 @@
 import { useForm } from "@inertiajs/react";
-import React from "react";
+import React, { useEffect } from "react";
 import { useRoute } from "ziggy-js";
 import { router } from "@inertiajs/react";
 import TaskItem from "./Components/TaskItem";
+import {
+    DndContext,
+    closestCenter,
+    useSensor,
+    useSensors,
+    PointerSensor,
+    DragEndEvent,
+} from '@dnd-kit/core';
+import {
+    SortableContext,
+    verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 
 interface Props {
     tasks: Object[];
 }
 
 const Create = ({ tasks }: Props) => {
-    const route = useRoute();
+  const route = useRoute();
+  const sensors = useSensors(useSensor(PointerSensor));
+  const [allTasks, setAllTasks] = React.useState(tasks);
+
+  useEffect(() => {
+    setAllTasks(tasks);
+  }, [tasks])
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (active.id !== over?.id) {
+      const oldIndex = allTasks.findIndex(task => task.id === active.id);
+      const newIndex = allTasks.findIndex(task => task.id === over?.id);
+
+      const newPriority = [...allTasks];
+      const [moved] = newPriority.splice(oldIndex, 1);
+      newPriority.splice(newIndex, 0, moved);
+
+      setAllTasks(newPriority);
+
+      const newPriorityIndex = newPriority.findIndex(task => task.id === active.id);
+
+      router.post(route('tasks.reorder'), {
+        task_id: active.id,
+        priority: newPriorityIndex,
+      });
+    }
+  };
+
 
     const { data, setData, post } = useForm({
         name: "",
@@ -44,10 +85,20 @@ const Create = ({ tasks }: Props) => {
                             Create
                         </button>
                     </form>
-
-                    {tasks.map((task: any) => (
-                        <TaskItem key={task.id} task={task} />
-                    ))}
+                    <DndContext
+                      sensors={sensors}
+                      collisionDetection={closestCenter}
+                      onDragEnd={handleDragEnd}
+                      >
+                        <SortableContext
+                            items={allTasks.map(task => task.id)}
+                            strategy={verticalListSortingStrategy}
+                        >
+                          {allTasks.map((task: any) => (
+                            <TaskItem key={task.id} task={task} />
+                          ))}
+                        </SortableContext>
+                      </DndContext>
                 </div>
             </div>
         </div>

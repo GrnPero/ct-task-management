@@ -96,9 +96,35 @@ class TasksController extends Controller
     }
 
     /**
+     * When user drags the tasks and drops them, we need to reorder the priority
+     */
+    public function reorder(Request $request)
+    {
+        $validate = $request->validate([
+            'task_id' => 'required|integer',
+            'priority' => 'required|integer',
+        ]);
+
+        $task = Task::query()->find($validate['task_id']);
+
+        $tasks = Task::query()
+            ->whereNot('id', $validate['task_id'])
+            ->orderBy('priority')
+            ->get(['id'])
+            ->toArray();
+
+        array_splice($tasks, $validate['priority'], 0, [['id' => $task->id]]);
+
+        foreach ($tasks as $index => $t) {
+            Task::where('id', $t['id'])->update(['priority' => $index + 1]);
+        }
+
+        return redirect()->route('tasks.create');
+    }
+
+    /**
      * Reorder the priority
      */
-
     private function reorderPriority()
     {
         $tasks = Task::query()->orderBy('priority', 'asc')->get();
