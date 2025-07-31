@@ -1,4 +1,4 @@
-### How to set-up and deploy
+# How to set-up and deploy
 
 ## Database
 1. First, we create the database in MySQL called `tasks`.
