@@ -1,4 +1,4 @@
-import { useForm } from "@inertiajs/react";
+import { useForm, usePage } from "@inertiajs/react";
 import React, { useEffect } from "react";
 import { useRoute } from "ziggy-js";
 import { router } from "@inertiajs/react";
@@ -22,12 +22,23 @@ interface Props {
 
 const Create = ({ tasks }: Props) => {
   const route = useRoute();
+  const flash = usePage()?.props?.flash?.success;
   const sensors = useSensors(useSensor(PointerSensor));
   const [allTasks, setAllTasks] = React.useState(tasks);
+  const [message, setMessage] = React.useState(null);
 
   useEffect(() => {
     setAllTasks(tasks);
   }, [tasks])
+
+  useEffect(() => {
+    if (flash) {
+      setMessage(flash);
+      setTimeout(() => {
+        setMessage(null);
+      }, 3000);
+    }
+  }, [flash])
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -67,6 +78,14 @@ const Create = ({ tasks }: Props) => {
 
     return (
         <div className="max-w-[1280px] mx-auto my-0">
+          {message && (
+            <div className="fixed top-4 right-16 z-1">
+              <div className="text-green-500 text-lg border border-green-500 bg-green-100 p-4 rounded-lg">
+                  {message}
+              </div>
+            </div>
+          )}
+
             <div className="flex justify-center items-center my-5">
                 <div className="rounded-lg border border-gray-300 p-4 shadow-md flex flex-col items-center">
                     <h1 className="text-lg font-bold mb-4">Task Management</h1>
