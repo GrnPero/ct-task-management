@@ -43,7 +43,7 @@ const TaskItem = ({ task }: Props) => {
 
     const handleDelete = (e, id) => {
         e.preventDefault();
-        router.delete(route("tasks.delete", id));
+        router.delete(route("tasks.destroy", id));
     };
 
     return (

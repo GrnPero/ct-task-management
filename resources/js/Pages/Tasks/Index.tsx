@@ -20,7 +20,7 @@ interface Props {
     tasks: Object[];
 }
 
-const Create = ({ tasks }: Props) => {
+const Index = ({ tasks }: Props) => {
   const route = useRoute();
   const flash = usePage()?.props?.flash?.success;
   const sensors = useSensors(useSensor(PointerSensor));
@@ -124,4 +124,4 @@ const Create = ({ tasks }: Props) => {
     );
 };
 
-export default Create;
+export default Index;

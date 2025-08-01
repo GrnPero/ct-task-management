@@ -13,7 +13,11 @@ class TasksController extends Controller
      */
     public function index()
     {
-        //       
+        $tasks = Task::query()->orderBy('priority', 'asc')->get();
+
+        return Inertia::render('Tasks/Index', [
+            'tasks' => $tasks,
+        ]);
     }
 
     /**
@@ -21,11 +25,7 @@ class TasksController extends Controller
      */
     public function create()
     {
-        $tasks = Task::query()->orderBy('priority', 'asc')->get();
-
-        return Inertia::render('Tasks/Create', [
-            'tasks' => $tasks,
-        ]);
+        //
     }
 
     /**
@@ -44,7 +44,7 @@ class TasksController extends Controller
             'priority' => $total + 1,
         ]);
 
-        return redirect()->route('tasks.create')->with('success', 'Task created successfully!');
+        return redirect()->route('tasks.index')->with('success', 'Task created successfully!');
     }
 
     /**
@@ -78,7 +78,7 @@ class TasksController extends Controller
 
         $task->save();
         
-        return redirect()->route('tasks.create')->with('success', 'Task updated successfully!');;
+        return redirect()->route('tasks.index')->with('success', 'Task updated successfully!');;
     }
 
     /**
@@ -92,7 +92,7 @@ class TasksController extends Controller
 
         $this->reorderPriority();
 
-        return redirect()->route('tasks.create')->with('success', 'Task deleted successfully!');;
+        return redirect()->route('tasks.index')->with('success', 'Task deleted successfully!');;
     }
 
     /**
@@ -119,7 +119,7 @@ class TasksController extends Controller
             Task::where('id', $t['id'])->update(['priority' => $index + 1]);
         }
 
-        return redirect()->route('tasks.create')->with('success', 'Task reordered successfully!');;
+        return redirect()->route('tasks.index')->with('success', 'Task reordered successfully!');;
     }
 
     /**
@@ -134,6 +134,6 @@ class TasksController extends Controller
             $task->save();
         }
         
-        return redirect()->route('tasks.create');
+        return redirect()->route('tasks.index');
     }
 }
